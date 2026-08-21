@@ -38,9 +38,32 @@ async def fake_fetch_page(url, client):
     return 200, GENERIC_PAGE_HTML
 
 
+class _FakeRobotsPolicy:
+    sitemap_urls: list[str] = []
+
+    def is_allowed(self, url, user_agent):
+        return True
+
+
+async def fake_fetch_robots_policy(homepage_url, client):
+    return _FakeRobotsPolicy()
+
+
+async def fake_discover_sitemap_urls(
+    homepage_url, client, known_sitemap_urls, max_urls
+):
+    return []
+
+
 @pytest.fixture(autouse=True)
-def patch_fetch_page(monkeypatch):
+def patch_network_boundaries(monkeypatch):
     monkeypatch.setattr(orchestrator, "fetch_page", fake_fetch_page)
+    monkeypatch.setattr(
+        orchestrator, "fetch_robots_policy", fake_fetch_robots_policy
+    )
+    monkeypatch.setattr(
+        orchestrator, "discover_sitemap_urls", fake_discover_sitemap_urls
+    )
 
 
 def test_crawl_company_returns_structured_response():

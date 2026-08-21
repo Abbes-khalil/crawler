@@ -34,6 +34,28 @@ def extract_meta_description(html: str) -> str | None:
     return content or None
 
 
+def extract_opengraph(html: str) -> dict[str, str]:
+    soup = BeautifulSoup(html, "lxml")
+
+    og: dict[str, str] = {}
+
+    for tag in soup.find_all("meta", attrs={"property": True}):
+        property_name = tag.get("property", "")
+
+        if not property_name.startswith("og:"):
+            continue
+
+        content = tag.get("content")
+
+        if not content:
+            continue
+
+        key = property_name[len("og:"):]
+        og.setdefault(key, content.strip())
+
+    return og
+
+
 def extract_language(html: str) -> str | None:
     soup = BeautifulSoup(html, "lxml")
 
