@@ -1,0 +1,27 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - redis
+
+  worker:
+    build: .
+    # Linux container, so the standard `rq worker` CLI works directly
+    # (fork + SIGALRM are both available). On Windows outside Docker,
+    # use `python -m app.jobs.worker` instead - see README.
+    command: ["python", "-m", "rq.cli", "worker", "crawl", "--url", "redis://redis:6379/0", "--with-scheduler"]
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - redis

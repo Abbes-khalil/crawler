@@ -92,6 +92,48 @@ class ObservationRecord(Base):
     )
 
 
+class BatchJob(Base):
+    __tablename__ = "batch_jobs"
+
+    id = Column(String, primary_key=True)
+
+    status = Column(String, nullable=False, default="QUEUED")
+    total_companies = Column(Integer, nullable=False, default=0)
+    completed_companies = Column(Integer, nullable=False, default=0)
+    failed_companies = Column(Integer, nullable=False, default=0)
+
+    created_at = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+
+    companies = relationship(
+        "BatchJobCompany",
+        back_populates="batch_job",
+        cascade="all, delete-orphan",
+    )
+
+
+class BatchJobCompany(Base):
+    __tablename__ = "batch_job_companies"
+
+    id = Column(Integer, primary_key=True)
+    batch_job_id = Column(ForeignKey("batch_jobs.id"), nullable=False)
+
+    website = Column(String, nullable=False)
+    status = Column(String, nullable=False, default="QUEUED")
+    crawl_status = Column(String, nullable=True)
+    canonical_url = Column(String, nullable=True)
+    pages_crawled = Column(Integer, nullable=True)
+    observations_count = Column(Integer, nullable=True)
+    error = Column(Text, nullable=True)
+
+    started_at = Column(DateTime(timezone=True), nullable=True)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+
+    batch_job = relationship("BatchJob", back_populates="companies")
+
+
 _engine = None
 _SessionLocal: sessionmaker | None = None
 

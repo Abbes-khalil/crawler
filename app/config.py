@@ -44,3 +44,25 @@ PLAYWRIGHT_TIMEOUT_MS = int(
 )
 
 DATABASE_URL = os.getenv("DATABASE_URL", "")
+
+REDIS_URL = os.getenv("REDIS_URL", "")
+
+RQ_QUEUE_NAME = os.getenv("RQ_QUEUE_NAME", "crawl")
+
+JOB_RETRY_MAX = int(os.getenv("JOB_RETRY_MAX", "2"))
+
+JOB_RETRY_INTERVALS_SECONDS = [
+    int(x)
+    for x in os.getenv("JOB_RETRY_INTERVALS_SECONDS", "10,60").split(",")
+    if x.strip()
+]
+
+PER_DOMAIN_RATE_LIMIT_SECONDS = float(
+    os.getenv("PER_DOMAIN_RATE_LIMIT_SECONDS", "2")
+)
+
+PER_DOMAIN_RATE_LIMIT_MAX_WAIT_SECONDS = float(
+    os.getenv("PER_DOMAIN_RATE_LIMIT_MAX_WAIT_SECONDS", "30")
+)
+
+MAX_BATCH_WEBSITES = int(os.getenv("MAX_BATCH_WEBSITES", "100"))
