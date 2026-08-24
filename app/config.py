@@ -66,3 +66,5 @@ PER_DOMAIN_RATE_LIMIT_MAX_WAIT_SECONDS = float(
 )
 
 MAX_BATCH_WEBSITES = int(os.getenv("MAX_BATCH_WEBSITES", "100"))
+
+FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
