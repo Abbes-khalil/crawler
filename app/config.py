@@ -67,4 +67,16 @@ PER_DOMAIN_RATE_LIMIT_MAX_WAIT_SECONDS = float(
 
 MAX_BATCH_WEBSITES = int(os.getenv("MAX_BATCH_WEBSITES", "100"))
 
-FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+DEFAULT_FRONTEND_ORIGINS = [
+    "http://localhost:3000",
+    # Tauri's WebView2 origin for the packaged desktop app on Windows.
+    "https://tauri.localhost",
+    "http://tauri.localhost",
+]
+
+_frontend_origin_env = os.getenv("FRONTEND_ORIGIN")
+FRONTEND_ORIGINS = (
+    [origin.strip() for origin in _frontend_origin_env.split(",") if origin.strip()]
+    if _frontend_origin_env
+    else DEFAULT_FRONTEND_ORIGINS
+)

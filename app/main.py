@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.batch import router as batch_router
 from app.api.crawl import router as crawl_router
 from app.api.health import router as health_router
-from app.config import FRONTEND_ORIGIN
+from app.config import FRONTEND_ORIGINS
 
 
 app = FastAPI(
@@ -14,7 +14,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_ORIGIN],
+    allow_origins=FRONTEND_ORIGINS,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
