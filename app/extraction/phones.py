@@ -2,7 +2,7 @@ import re
 
 
 PHONE_REGEX = re.compile(
-    r"(?:\+\d{1,3}[\s.-]?)?(?:\(?\d{2,4}\)?[\s.-]?){2,5}\d{2,4}"
+    r"(?:\+\d{1,3}[\s.-]?)?(?:\(?\d{1,4}\)?[\s.-]?){2,5}\d{2,4}"
 )
 
 YEAR_PAIR_REGEX = re.compile(

@@ -26,3 +26,10 @@ def test_ignores_long_repeated_digit_runs():
 def test_keeps_plausible_international_number():
     text = "Reach the office at 233 377 610 987 during business hours."
     assert extract_phones(text) == ["233 377 610 987"]
+
+
+def test_keeps_full_number_with_dropped_zero_trunk_prefix():
+    text = "Our fax: +33 (0)1 23 45 67 89."
+    phones = extract_phones(text)
+    assert len(phones) == 1
+    assert phones[0].startswith("+33 (0)1")
