@@ -1,0 +1,64 @@
+name: Build macOS desktop app
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            runner: macos-14
+          - target: x86_64-apple-darwin
+            runner: macos-13
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Build crawler sidecar (PyInstaller)
+        working-directory: .
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements-build.txt
+          pyinstaller desktop_main.spec --noconfirm
+
+      - name: Install sidecar into Tauri bin/
+        run: |
+          mkdir -p frontend/src-tauri/bin
+          cp dist/asbizdev-crawler "frontend/src-tauri/bin/asbizdev-crawler-${{ matrix.target }}"
+          chmod +x "frontend/src-tauri/bin/asbizdev-crawler-${{ matrix.target }}"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build Tauri app
+        working-directory: frontend
+        run: npx tauri build --target ${{ matrix.target }}
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AS-Biz-Dev-Web-Intelligence-${{ matrix.target }}
+          path: |
+            frontend/src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+            frontend/src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.app
+          if-no-files-found: error

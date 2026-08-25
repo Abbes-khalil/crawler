@@ -1,0 +1,156 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import type { CrawlCompanyResponse } from "@/types/crawler";
+import { CrawlerApiError, crawlCompany, healthCheck } from "@/lib/api/crawler";
+import { AppShell } from "@/components/layout/AppShell";
+import { CrawlForm } from "@/components/crawler/CrawlForm";
+import { CrawlLoading } from "@/components/crawler/CrawlLoading";
+import { CrawlSummary } from "@/components/crawler/CrawlSummary";
+import { ContactInfo } from "@/components/crawler/ContactInfo";
+import { PagesList } from "@/components/crawler/PagesList";
+import { CopyForChatGpt } from "@/components/crawler/CopyForChatGpt";
+import { RawJsonViewer } from "@/components/crawler/RawJsonViewer";
+import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+
+type UiState =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "result"; response: CrawlCompanyResponse }
+  | { kind: "transport-error"; error: CrawlerApiError };
+
+export default function Home() {
+  const [state, setState] = useState<UiState>({ kind: "idle" });
+  const [lastRequest, setLastRequest] = useState<{ website: string; maxPages: number } | null>(
+    null
+  );
+  const [showRawJson, setShowRawJson] = useState(false);
+  const [serviceAvailable, setServiceAvailable] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // fetch is only available client-side; reading it during the initial render
+    // (instead of here) would produce a server/client hydration mismatch.
+    let cancelled = false;
+    const maxAttempts = 20; // ~20s: the packaged sidecar needs a moment to bind its port
+
+    async function pollHealth(attempt: number) {
+      const available = await healthCheck();
+
+      if (cancelled) return;
+
+      if (available || attempt >= maxAttempts) {
+        setServiceAvailable(available);
+        return;
+      }
+
+      setTimeout(() => pollHealth(attempt + 1), 1000);
+    }
+
+    pollHealth(1);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function runCrawl(website: string, maxPages: number) {
+    setLastRequest({ website, maxPages });
+    setState({ kind: "loading" });
+
+    try {
+      const response = await crawlCompany({ website, max_pages: maxPages });
+      setState({ kind: "result", response });
+    } catch (error) {
+      setState({
+        kind: "transport-error",
+        error:
+          error instanceof CrawlerApiError ? error : new CrawlerApiError("Unknown error", "network"),
+      });
+    }
+  }
+
+  function handleRetry() {
+    if (lastRequest) {
+      runCrawl(lastRequest.website, lastRequest.maxPages);
+    }
+  }
+
+  return (
+    <AppShell
+      statusSlot={
+        serviceAvailable === false ? (
+          <span className="text-amber-300">Crawler could not start</span>
+        ) : serviceAvailable === true ? (
+          <span>Crawler service online</span>
+        ) : (
+          <span className="text-text-muted">Starting crawler…</span>
+        )
+      }
+    >
+      <div className="mx-auto flex max-w-2xl flex-col gap-6">
+        <div>
+          <h1 className="text-xl font-semibold text-text">Web Intelligence</h1>
+          <p className="text-sm text-text-muted">
+            Enter a company website to analyze its public content.
+          </p>
+        </div>
+
+        {serviceAvailable === false && (
+          <Card className="border-amber-300 bg-amber-50">
+            <p className="text-sm text-amber-900">
+              Crawler could not start. Close and reopen the application, or{" "}
+              <button
+                type="button"
+                className="underline"
+                onClick={() => {
+                  setServiceAvailable(null);
+                  healthCheck().then(setServiceAvailable);
+                }}
+              >
+                try again
+              </button>
+              .
+            </p>
+          </Card>
+        )}
+
+        <CrawlForm
+          onSubmit={runCrawl}
+          disabled={state.kind === "loading" || serviceAvailable !== true}
+          loading={state.kind === "loading"}
+        />
+
+        {state.kind === "loading" && <CrawlLoading />}
+
+        {state.kind === "transport-error" && (
+          <Card>
+            <Badge tone="error">Crawler service unavailable</Badge>
+            <p className="mt-2 text-sm text-text-muted">
+              We couldn&apos;t reach the crawler service. Check that it&apos;s running and try
+              again.
+            </p>
+          </Card>
+        )}
+
+        {state.kind === "result" && (
+          <>
+            <CrawlSummary response={state.response} onRetry={handleRetry} />
+            {(state.response.status === "SUCCESS" || state.response.status === "PARTIAL_SUCCESS") && (
+              <>
+                <ContactInfo observations={state.response.observations} />
+                <PagesList pages={state.response.pages} pageErrors={state.response.page_errors} />
+              </>
+            )}
+            <CopyForChatGpt response={state.response} onViewJson={() => setShowRawJson(true)} />
+          </>
+        )}
+      </div>
+
+      <RawJsonViewer
+        response={showRawJson && state.kind === "result" ? state.response : null}
+        onClose={() => setShowRawJson(false)}
+      />
+    </AppShell>
+  );
+}
