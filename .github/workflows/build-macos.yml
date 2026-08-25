@@ -52,13 +52,18 @@ jobs:
 
       - name: Build Tauri app
         working-directory: frontend
-        run: npx tauri build --target ${{ matrix.target }}
+        # bundles=app only: Tauri's dmg bundler (bundle_dmg.sh, which drives
+        # Finder/hdiutil) is known to fail intermittently on GitHub's macOS
+        # runners. The .app is what actually matters; zip it ourselves below.
+        run: npx tauri build --target ${{ matrix.target }} --bundles app
 
-      - name: Upload DMG artifact
+      - name: Zip the .app
+        working-directory: frontend/src-tauri/target/${{ matrix.target }}/release/bundle/macos
+        run: ditto -c -k --sequesterRsrc --keepParent "AS Biz Dev Web Intelligence.app" "AS-Biz-Dev-Web-Intelligence-${{ matrix.target }}.zip"
+
+      - name: Upload app artifact
         uses: actions/upload-artifact@v4
         with:
           name: AS-Biz-Dev-Web-Intelligence-${{ matrix.target }}
-          path: |
-            frontend/src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
-            frontend/src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.app
+          path: frontend/src-tauri/target/${{ matrix.target }}/release/bundle/macos/AS-Biz-Dev-Web-Intelligence-${{ matrix.target }}.zip
           if-no-files-found: error
