@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 
 const STEPS = [
-  "Connecting to website",
-  "Discovering relevant pages",
-  "Extracting business content",
-  "Preparing results",
+  "Connexion au site web",
+  "Découverte des pages pertinentes",
+  "Extraction du contenu",
+  "Préparation des résultats",
 ];
 
 const STEP_INTERVAL_MS = 1400;
@@ -28,7 +28,7 @@ export function CrawlLoading() {
       aria-live="polite"
       className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5"
     >
-      <p className="text-sm font-medium text-text">Analyzing website...</p>
+      <p className="text-sm font-medium text-text">Analyse du site en cours...</p>
       <ul className="flex flex-col gap-2">
         {STEPS.map((label, index) => {
           const state =
@@ -50,8 +50,8 @@ export function CrawlLoading() {
               </span>
               <span className={state === "pending" ? "text-text-muted" : "text-text"}>
                 {label}
-                {state === "active" && <span className="sr-only"> (in progress)</span>}
-                {state === "done" && <span className="sr-only"> (done)</span>}
+                {state === "active" && <span className="sr-only"> (en cours)</span>}
+                {state === "done" && <span className="sr-only"> (terminé)</span>}
               </span>
             </li>
           );

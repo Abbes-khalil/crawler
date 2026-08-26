@@ -65,7 +65,7 @@ export default function Home() {
       setState({
         kind: "transport-error",
         error:
-          error instanceof CrawlerApiError ? error : new CrawlerApiError("Unknown error", "network"),
+          error instanceof CrawlerApiError ? error : new CrawlerApiError("Erreur inconnue", "network"),
       });
     }
   }
@@ -80,26 +80,26 @@ export default function Home() {
     <AppShell
       statusSlot={
         serviceAvailable === false ? (
-          <span className="text-amber-300">Crawler could not start</span>
+          <span className="text-amber-300">Le robot n&apos;a pas pu démarrer</span>
         ) : serviceAvailable === true ? (
-          <span>Crawler service online</span>
+          <span>Service d&apos;analyse en ligne</span>
         ) : (
-          <span className="text-text-muted">Starting crawler…</span>
+          <span className="text-text-muted">Démarrage du robot…</span>
         )
       }
     >
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
         <div>
-          <h1 className="text-xl font-semibold text-text">Web Intelligence</h1>
+          <h1 className="text-xl font-semibold text-text">Intelligence Web</h1>
           <p className="text-sm text-text-muted">
-            Enter a company website to analyze its public content.
+            Entrez le site web d&apos;une entreprise pour analyser son contenu public.
           </p>
         </div>
 
         {serviceAvailable === false && (
           <Card className="border-amber-300 bg-amber-50">
             <p className="text-sm text-amber-900">
-              Crawler could not start. Close and reopen the application, or{" "}
+              Le robot n&apos;a pas pu démarrer. Fermez et rouvrez l&apos;application, ou{" "}
               <button
                 type="button"
                 className="underline"
@@ -108,7 +108,7 @@ export default function Home() {
                   healthCheck().then(setServiceAvailable);
                 }}
               >
-                try again
+                réessayez
               </button>
               .
             </p>
@@ -125,10 +125,10 @@ export default function Home() {
 
         {state.kind === "transport-error" && (
           <Card>
-            <Badge tone="error">Crawler service unavailable</Badge>
+            <Badge tone="error">Service d&apos;analyse indisponible</Badge>
             <p className="mt-2 text-sm text-text-muted">
-              We couldn&apos;t reach the crawler service. Check that it&apos;s running and try
-              again.
+              Impossible de contacter le service d&apos;analyse. Vérifiez qu&apos;il est bien
+              lancé et réessayez.
             </p>
           </Card>
         )}

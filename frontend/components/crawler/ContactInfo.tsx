@@ -51,35 +51,35 @@ export function ContactInfo({ observations }: { observations: Observation[] }) {
 
   return (
     <Card>
-      <h2 className="mb-3 text-sm font-semibold text-text">Contact information</h2>
+      <h2 className="mb-3 text-sm font-semibold text-text">Coordonnées</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-text-muted">Email</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-text-muted">E-mail</p>
           {emails.length > 0 ? (
             <ValueList values={emails} />
           ) : (
-            <p className="text-sm text-text-muted">Not found</p>
+            <p className="text-sm text-text-muted">Introuvable</p>
           )}
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-text-muted">Phone</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-text-muted">Téléphone</p>
           {phones.length > 0 ? (
             <ValueList values={phones} />
           ) : (
-            <p className="text-sm text-text-muted">Not found</p>
+            <p className="text-sm text-text-muted">Introuvable</p>
           )}
         </div>
         {organizationNames.length > 0 && (
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-              Organization
+              Organisation
             </p>
             <ValueList values={organizationNames} />
           </div>
         )}
         {socials.length > 0 && (
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-text-muted">Social</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-text-muted">Réseaux sociaux</p>
             <ValueList values={socials} />
           </div>
         )}

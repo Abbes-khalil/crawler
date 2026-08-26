@@ -27,11 +27,11 @@ export function RawJsonViewer({
   }
 
   return (
-    <Drawer open={response !== null} onClose={onClose} title="Raw JSON">
+    <Drawer open={response !== null} onClose={onClose} title="JSON brut">
       {response && (
         <div className="flex flex-col gap-3">
           <Button variant="secondary" onClick={handleCopy} className="w-fit">
-            {copied ? "Copied" : "Copy JSON"}
+            {copied ? "Copié" : "Copier le JSON"}
           </Button>
           <pre className="overflow-x-auto rounded-md bg-navy p-3 font-mono text-xs text-white">
             {JSON.stringify(response, null, 2)}

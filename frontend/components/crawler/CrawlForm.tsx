@@ -21,7 +21,7 @@ export function CrawlForm({ onSubmit, disabled, loading = disabled }: CrawlFormP
 
     const trimmed = website.trim();
     if (!trimmed) {
-      setError("Enter a website address to analyze.");
+      setError("Entrez une adresse de site web à analyser.");
       return;
     }
 
@@ -32,8 +32,8 @@ export function CrawlForm({ onSubmit, disabled, loading = disabled }: CrawlFormP
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Input
-        label="Website URL"
-        placeholder="https://company.com"
+        label="URL du site web"
+        placeholder="https://entreprise.com"
         value={website}
         onChange={(e) => setWebsite(e.target.value)}
         error={error}
@@ -46,24 +46,24 @@ export function CrawlForm({ onSubmit, disabled, loading = disabled }: CrawlFormP
         className="w-fit text-xs font-medium text-text-muted hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
         aria-expanded={showAdvanced}
       >
-        {showAdvanced ? "Hide advanced options" : "Advanced options"}
+        {showAdvanced ? "Masquer les options avancées" : "Options avancées"}
       </button>
 
       {showAdvanced && (
         <Input
-          label="Max pages"
+          label="Nombre de pages max"
           type="number"
           min={1}
           max={20}
           value={maxPages}
           onChange={(e) => setMaxPages(Number(e.target.value) || 1)}
-          hint="How many pages to crawl (1–20). Default is 5."
+          hint="Nombre de pages à analyser (1 à 20). Par défaut : 5."
           disabled={disabled}
         />
       )}
 
       <Button type="submit" disabled={disabled} loading={loading} className="w-fit">
-        {loading ? "Analyzing..." : "Analyze website"}
+        {loading ? "Analyse en cours..." : "Analyser le site"}
       </Button>
     </form>
   );

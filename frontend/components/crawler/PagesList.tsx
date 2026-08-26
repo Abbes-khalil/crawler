@@ -23,7 +23,7 @@ export function PagesList({
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-sm font-semibold text-text">Crawled pages</h2>
+      <h2 className="text-sm font-semibold text-text">Pages analysées</h2>
       <div className="flex flex-col gap-2">
         {pages.map((page) => (
           <Card key={page.url}>
@@ -38,7 +38,7 @@ export function PagesList({
             </div>
             <p className="mt-2 text-sm text-text-muted">{excerpt(page.text)}</p>
             <Button variant="ghost" className="mt-2 px-0" onClick={() => setSelectedPage(page)}>
-              View extracted content
+              Voir le contenu extrait
             </Button>
           </Card>
         ))}
@@ -47,7 +47,9 @@ export function PagesList({
       {pageErrors.length > 0 && (
         <details className="rounded-lg border border-border bg-surface-muted p-3">
           <summary className="cursor-pointer text-sm font-medium text-text-muted">
-            {pageErrors.length} page{pageErrors.length > 1 ? "s" : ""} couldn&apos;t be analyzed
+            {pageErrors.length} page{pageErrors.length > 1 ? "s" : ""} n&apos;
+            {pageErrors.length > 1 ? "ont" : "a"} pas pu être analysée
+            {pageErrors.length > 1 ? "s" : ""}
           </summary>
           <ul className="mt-2 flex flex-col gap-1">
             {pageErrors.map((error) => (

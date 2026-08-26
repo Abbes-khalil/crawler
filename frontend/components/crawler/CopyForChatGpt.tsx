@@ -28,16 +28,16 @@ export function CopyForChatGpt({
     <Card>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-text">JSON for ChatGPT Agent</h2>
+          <h2 className="text-sm font-semibold text-text">JSON pour l&apos;agent ChatGPT</h2>
           <p className="text-xs text-text-muted">
-            Copy this and paste it into the AS Biz Dev intelligence agent.
+            Copiez ceci et collez-le dans l&apos;agent d&apos;intelligence AS Biz Dev.
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={onViewJson}>
-            View JSON
+            Voir le JSON
           </Button>
-          <Button onClick={handleCopy}>{copied ? "Copied!" : "Copy for ChatGPT"}</Button>
+          <Button onClick={handleCopy}>{copied ? "Copié !" : "Copier pour ChatGPT"}</Button>
         </div>
       </div>
     </Card>

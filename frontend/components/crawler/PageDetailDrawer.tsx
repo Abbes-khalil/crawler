@@ -9,7 +9,7 @@ export function PageDetailDrawer({
   onClose: () => void;
 }) {
   return (
-    <Drawer open={page !== null} onClose={onClose} title={page?.title ?? "Page details"}>
+    <Drawer open={page !== null} onClose={onClose} title={page?.title ?? "Détails de la page"}>
       {page && (
         <div className="flex flex-col gap-4">
           <div>
@@ -26,7 +26,7 @@ export function PageDetailDrawer({
           {page.meta_description && (
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-                Meta description
+                Méta-description
               </p>
               <p className="text-sm text-text">{page.meta_description}</p>
             </div>
@@ -34,26 +34,26 @@ export function PageDetailDrawer({
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-                Status
+                Statut
               </p>
               <p className="text-text">{page.status_code ?? "—"}</p>
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-                Language
+                Langue
               </p>
               <p className="text-text">{page.language ?? "—"}</p>
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-                Crawl method
+                Méthode d&apos;analyse
               </p>
               <p className="text-text">{page.crawl_method}</p>
             </div>
           </div>
           <div>
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-text-muted">
-              Extracted content
+              Contenu extrait
             </p>
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-text">{page.text}</p>
           </div>

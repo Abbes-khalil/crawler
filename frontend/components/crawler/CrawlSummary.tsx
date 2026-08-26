@@ -4,16 +4,16 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 
 const STATUS_COPY: Record<CrawlStatus, string> = {
-  SUCCESS: "Analysis complete.",
-  PARTIAL_SUCCESS: "Analysis completed with some limitations.",
-  INVALID_URL: "That doesn't look like a valid website address.",
-  DEAD_DOMAIN: "We couldn't reach that website.",
-  TIMEOUT: "We couldn't retrieve the website within the allowed time.",
-  BLOCKED: "This website blocked our request.",
-  ROBOTS_DENIED: "This website's rules don't allow us to analyze it.",
-  INSUFFICIENT_CONTENT: "We reached the site but couldn't find readable content.",
-  HTTP_ERROR: "The website returned an error.",
-  CAPTCHA: "This website requires human verification we can't bypass.",
+  SUCCESS: "Analyse terminée.",
+  PARTIAL_SUCCESS: "Analyse terminée avec certaines limites.",
+  INVALID_URL: "Cette adresse ne semble pas être un site web valide.",
+  DEAD_DOMAIN: "Impossible d'accéder à ce site web.",
+  TIMEOUT: "Le site n'a pas répondu dans le délai imparti.",
+  BLOCKED: "Ce site web a bloqué notre requête.",
+  ROBOTS_DENIED: "Les règles de ce site ne nous autorisent pas à l'analyser.",
+  INSUFFICIENT_CONTENT: "Le site a été atteint mais aucun contenu lisible n'a été trouvé.",
+  HTTP_ERROR: "Le site web a retourné une erreur.",
+  CAPTCHA: "Ce site nécessite une vérification humaine que nous ne pouvons pas contourner.",
 };
 
 const RETRYABLE_STATUSES: CrawlStatus[] = [
@@ -61,7 +61,7 @@ export function CrawlSummary({
         </div>
         {RETRYABLE_STATUSES.includes(response.status) && (
           <Button variant="secondary" onClick={onRetry}>
-            Try again
+            Réessayer
           </Button>
         )}
       </div>
@@ -70,10 +70,10 @@ export function CrawlSummary({
 
       {!isFailure && (
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Metric label="Pages discovered" value={response.pages_discovered} />
-          <Metric label="Pages analyzed" value={response.pages_crawled} />
-          <Metric label="Emails found" value={emailCount} />
-          <Metric label="Phones found" value={phoneCount} />
+          <Metric label="Pages découvertes" value={response.pages_discovered} />
+          <Metric label="Pages analysées" value={response.pages_crawled} />
+          <Metric label="E-mails trouvés" value={emailCount} />
+          <Metric label="Téléphones trouvés" value={phoneCount} />
         </div>
       )}
     </Card>

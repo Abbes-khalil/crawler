@@ -36,7 +36,7 @@ export async function crawlCompany(
       body: JSON.stringify(request),
     });
   } catch {
-    throw new CrawlerApiError("Could not reach the crawler service.", "network");
+    throw new CrawlerApiError("Impossible de contacter le service d'analyse.", "network");
   }
 
   if (!response.ok) {
@@ -44,7 +44,7 @@ export async function crawlCompany(
 
     if (response.status === 422) {
       throw new CrawlerApiError(
-        "The crawler service rejected this request.",
+        "Le service d'analyse a rejeté cette requête.",
         "validation",
         response.status,
         detail
@@ -52,7 +52,7 @@ export async function crawlCompany(
     }
 
     throw new CrawlerApiError(
-      "The crawler service returned an error.",
+      "Le service d'analyse a retourné une erreur.",
       "http",
       response.status,
       detail

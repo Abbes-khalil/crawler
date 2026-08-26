@@ -38,7 +38,7 @@ export function Drawer({ open, onClose, title, children }: DrawerProps) {
             type="button"
             onClick={onClose}
             className="rounded-md p-1.5 text-text-muted hover:bg-surface-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-            aria-label="Close"
+            aria-label="Fermer"
           >
             &#x2715;
           </button>
