@@ -65,3 +65,17 @@ jobs:
           name: AS-Biz-Dev-Web-Intelligence-${{ matrix.target }}
           path: frontend/src-tauri/target/${{ matrix.target }}/release/bundle/macos/AS-Biz-Dev-Web-Intelligence-${{ matrix.target }}.zip
           if-no-files-found: error
+
+      - name: Build dmg (best-effort)
+        id: dmg
+        working-directory: frontend
+        continue-on-error: true
+        run: npx tauri build --target ${{ matrix.target }} --bundles dmg
+
+      - name: Upload dmg artifact
+        if: steps.dmg.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: AS-Biz-Dev-Web-Intelligence-${{ matrix.target }}-dmg
+          path: frontend/src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+          if-no-files-found: error
