@@ -21,3 +21,4 @@ web/node_modules/
 
 .venv-win/
 .macos-build*/
+dist-ci/
