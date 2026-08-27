@@ -1,4 +1,6 @@
-from playwright.async_api import Browser, async_playwright
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from app.config import (
     CRAWLER_USER_AGENT,
@@ -6,6 +8,9 @@ from app.config import (
     PLAYWRIGHT_TIMEOUT_MS,
 )
 from app.extraction.cleaner import extract_clean_text
+
+if TYPE_CHECKING:
+    from playwright.async_api import Browser
 
 
 def is_content_insufficient(html: str) -> bool:
@@ -21,14 +26,19 @@ def is_content_insufficient(html: str) -> bool:
 class BrowserFetcher:
     """Lazily launches a single Chromium instance on first use and
     reuses it for the rest of the crawl, so we never launch a browser
-    per page - only when HTTP content already proved insufficient."""
+    per page - only when HTTP content already proved insufficient.
+
+    Playwright is imported lazily so builds that disable the fallback
+    (``PLAYWRIGHT_ENABLED=false``) need not bundle it at all."""
 
     def __init__(self):
         self._playwright = None
-        self._browser: Browser | None = None
+        self._browser: "Browser | None" = None
 
-    async def _ensure_browser(self) -> Browser:
+    async def _ensure_browser(self) -> "Browser":
         if self._browser is None:
+            from playwright.async_api import async_playwright
+
             self._playwright = await async_playwright().start()
             self._browser = await self._playwright.chromium.launch(
                 headless=True

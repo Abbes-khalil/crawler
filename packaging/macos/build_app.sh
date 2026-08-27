@@ -14,9 +14,13 @@ APP_NAME="AS Biz Dev Web Intelligence"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
-pyinstaller packaging/launcher.spec --noconfirm
-
 APP_PATH="dist/${APP_NAME}.app"
+
+# CI builds the bundle in a prior step; only build here if it is missing
+# (e.g. a local invocation).
+if [[ ! -d "$APP_PATH" ]]; then
+  pyinstaller packaging/launcher.spec --noconfirm
+fi
 test -d "$APP_PATH"
 
 if [[ -n "${CODESIGN_IDENTITY:-}" ]]; then
