@@ -18,7 +18,8 @@ DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
-OutputDir=dist
+; {#SourcePath} is this .iss file's directory (packaging\windows\).
+OutputDir={#SourcePath}\..\..\dist
 OutputBaseFilename=AS-Biz-Dev-Web-Intelligence-{#AppVersion}-setup
 Compression=lzma2
 SolidCompression=yes

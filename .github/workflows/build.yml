@@ -57,6 +57,6 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: |
-            dist/*.exe
+            dist/*-setup.exe
             dist/*.dmg
           if-no-files-found: error
