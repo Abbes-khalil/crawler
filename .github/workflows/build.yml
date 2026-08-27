@@ -59,4 +59,5 @@ jobs:
           path: |
             dist/*-setup.exe
             dist/*.dmg
+            dist/AS-Biz-Dev-Web-Intelligence-macos.zip
           if-no-files-found: error

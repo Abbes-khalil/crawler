@@ -29,15 +29,46 @@ if [[ -n "${CODESIGN_IDENTITY:-}" ]]; then
     --sign "$CODESIGN_IDENTITY" "$APP_PATH"
 fi
 
-DMG_PATH="dist/AS-Biz-Dev-Web-Intelligence.dmg"
-rm -f "$DMG_PATH"
-hdiutil create -volname "$APP_NAME" -srcfolder "$APP_PATH" \
-  -ov -format UDZO "$DMG_PATH"
+# Always produce a zip of the .app - hdiutil on CI runners is flaky
+# ("Resource busy" / "No space left"), so the zip is the reliable artifact
+# and the .dmg is best-effort.
+ZIP_PATH="dist/AS-Biz-Dev-Web-Intelligence-macos.zip"
+rm -f "$ZIP_PATH"
+ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$ZIP_PATH"
+echo "Built $ZIP_PATH"
 
-if [[ -n "${NOTARY_PROFILE:-}" ]]; then
+DMG_PATH="dist/AS-Biz-Dev-Web-Intelligence.dmg"
+STAGING="$(mktemp -d)"
+cp -R "$APP_PATH" "$STAGING/"
+
+make_dmg() {
+  hdiutil detach "/Volumes/$APP_NAME" >/dev/null 2>&1 || true
+  rm -f "$DMG_PATH"
+  sync
+  hdiutil create -volname "$APP_NAME" -srcfolder "$STAGING" \
+    -fs HFS+ -ov -format UDZO "$DMG_PATH"
+}
+
+dmg_ok=""
+for attempt in 1 2 3 4 5; do
+  if make_dmg; then
+    dmg_ok=1
+    break
+  fi
+  echo "hdiutil create failed (attempt $attempt); retrying in 10s..."
+  sleep 10
+done
+rm -rf "$STAGING"
+
+if [[ -z "$dmg_ok" ]]; then
+  echo "WARNING: could not build .dmg after 5 attempts; shipping the zip only."
+fi
+
+if [[ -n "$dmg_ok" && -n "${NOTARY_PROFILE:-}" ]]; then
   echo "Notarizing $DMG_PATH"
   xcrun notarytool submit "$DMG_PATH" --keychain-profile "$NOTARY_PROFILE" --wait
   xcrun stapler staple "$DMG_PATH"
 fi
 
-echo "Built $DMG_PATH"
+[[ -n "$dmg_ok" ]] && echo "Built $DMG_PATH"
+echo "Done."
