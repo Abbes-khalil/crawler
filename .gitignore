@@ -12,5 +12,12 @@ __pycache__/
 dist/
 build/
 
+web/out/
+web/.next/
+web/node_modules/
+*.db
+*.db-shm
+*.db-wal
+
 .venv-win/
 .macos-build*/
