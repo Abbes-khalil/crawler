@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -44,15 +45,25 @@ app.include_router(results_router)
 
 class SpaStaticFiles(StaticFiles):
     """Serve the exported Next.js site, falling back to index.html so a
-    browser refresh on a client-side route still resolves."""
+    browser refresh on a client-side route still resolves. Real assets
+    (anything with a file extension) keep their normal 404."""
 
     async def get_response(self, path: str, scope):
+        response = None
         try:
-            return await super().get_response(path, scope)
+            response = await super().get_response(path, scope)
         except StarletteHTTPException as exc:
-            if exc.status_code == 404:
-                return FileResponse(self.directory / "index.html")
-            raise
+            if exc.status_code != 404:
+                raise
+
+        if (response is None or response.status_code == 404) and "." not in path.rsplit(
+            "/", 1
+        )[-1]:
+            return FileResponse(Path(self.directory) / "index.html")
+
+        if response is None:
+            raise StarletteHTTPException(status_code=404)
+        return response
 
 
 _web = frontend_dir()

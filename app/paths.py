@@ -59,5 +59,11 @@ def bundle_dir() -> Path:
 
 
 def frontend_dir() -> Path:
-    """Location of the built static frontend (Next.js ``output: export``)."""
-    return bundle_dir() / "web"
+    """Location of the built static frontend (Next.js ``output: export``).
+
+    Packaged: ``<_MEIPASS>/web``. From source: ``<repo>/web/out``.
+    """
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass:
+        return Path(meipass) / "web"
+    return bundle_dir() / "web" / "out"

@@ -60,3 +60,37 @@ export interface CrawlCompanyRequest {
   website: string;
   max_pages?: number;
 }
+
+export type JobStatus =
+  | "starting"
+  | "crawling"
+  | "completed"
+  | "failed"
+  | "cancelled";
+
+export interface JobProgress {
+  phase: string;
+  pages_done: number;
+  pages_total: number;
+}
+
+export interface Job {
+  id: string;
+  website: string;
+  max_pages: number;
+  status: JobStatus;
+  progress: JobProgress;
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+  error: string | null;
+  result?: CrawlCompanyResponse | null;
+}
+
+export interface ResultSummary {
+  id: number;
+  canonical_url: string;
+  crawled_at: string | null;
+  pages_count: number;
+  observations_count: number;
+}
