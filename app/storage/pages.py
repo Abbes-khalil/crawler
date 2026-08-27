@@ -1,4 +1,4 @@
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import Session
 
 from app.models.page import CrawledPage
@@ -24,7 +24,7 @@ def save_pages(
         )
 
         stmt = stmt.on_conflict_do_update(
-            constraint="uq_company_page_url",
+            index_elements=["company_id", "url"],
             set_={
                 "title": stmt.excluded.title,
                 "meta_description": stmt.excluded.meta_description,

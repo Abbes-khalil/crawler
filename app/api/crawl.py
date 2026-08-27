@@ -1,28 +1,14 @@
-import asyncio
-
 from fastapi import APIRouter
 
-from app.crawler.orchestrator import crawl_company
+from app.jobs.manager import manager
 from app.models.request import CrawlCompanyRequest
-from app.models.response import CrawlCompanyResponse
-from app.storage import persist_crawl_result
+
+router = APIRouter(prefix="/api")
 
 
-router = APIRouter()
-
-
-@router.post(
-    "/crawl-company",
-    response_model=CrawlCompanyResponse,
-)
-async def crawl_company_endpoint(
-    request: CrawlCompanyRequest,
-):
-    response = await crawl_company(
-        website=request.website,
-        max_pages=request.max_pages,
-    )
-
-    await asyncio.to_thread(persist_crawl_result, response)
-
-    return response
+@router.post("/crawl", status_code=202)
+async def start_crawl(request: CrawlCompanyRequest):
+    """Start a crawl in the background. Returns immediately with a job id;
+    poll ``GET /api/jobs/{id}`` for status, progress, and the result."""
+    job = manager.create(request.website, request.max_pages)
+    return job.to_public()

@@ -1,4 +1,5 @@
 import time
+from typing import Callable
 from urllib.parse import urlparse
 
 import httpx
@@ -87,10 +88,33 @@ async def _try_render_with_browser(
     return rendered_html, "playwright", True
 
 
+ProgressCallback = Callable[[str, int, int], None]
+
+
+def _noop_progress(phase: str, done: int, total: int) -> None:
+    pass
+
+
 async def crawl_company(
     website: str,
     max_pages: int,
+    on_progress: ProgressCallback | None = None,
 ) -> CrawlCompanyResponse:
+    """Crawl a company website and return a structured, provenance-tracked
+    response.
+
+    ``on_progress(phase, done, total)`` is invoked at coarse checkpoints so
+    a caller can surface progress. It never affects the crawl and any
+    exception it raises is ignored.
+    """
+    progress = on_progress or _noop_progress
+
+    def report(phase: str, done: int, total: int) -> None:
+        try:
+            progress(phase, done, total)
+        except Exception:
+            pass
+
     start = time.monotonic()
 
     canonical_url = normalize_url(website)
@@ -98,6 +122,8 @@ async def crawl_company(
     if not urlparse(canonical_url).netloc or "." not in urlparse(canonical_url).netloc:
         duration_ms = int((time.monotonic() - start) * 1000)
         return _empty_response(canonical_url, "INVALID_URL", duration_ms)
+
+    report("discovering", 0, max_pages)
 
     browser = BrowserFetcher() if PLAYWRIGHT_ENABLED else None
 
@@ -171,7 +197,11 @@ async def crawl_company(
             http_pages_count = 0
             playwright_pages_count = 0
 
-            for url in selected_urls:
+            report("crawling", 0, len(selected_urls))
+
+            for idx, url in enumerate(selected_urls):
+                report("crawling", idx, len(selected_urls))
+
                 if RESPECT_ROBOTS_TXT and not robots_policy.is_allowed(
                     url, CRAWLER_USER_AGENT
                 ):
@@ -266,6 +296,8 @@ async def crawl_company(
     finally:
         if browser is not None:
             await browser.close()
+
+    report("crawling", len(selected_urls), len(selected_urls))
 
     duration_ms = int((time.monotonic() - start) * 1000)
 

@@ -1,4 +1,4 @@
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import Session
 
 from app.models.observation import Observation
@@ -23,7 +23,13 @@ def save_observations(
         )
 
         stmt = stmt.on_conflict_do_nothing(
-            constraint="uq_company_observation"
+            index_elements=[
+                "company_id",
+                "field",
+                "normalized_value",
+                "raw_value",
+                "source_type",
+            ]
         )
 
         session.execute(stmt)

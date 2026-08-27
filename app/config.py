@@ -2,6 +2,8 @@ import os
 
 from dotenv import load_dotenv
 
+from app.paths import default_database_url
+
 load_dotenv()
 
 APP_ENV = os.getenv("APP_ENV", "development")
@@ -43,35 +45,22 @@ PLAYWRIGHT_TIMEOUT_MS = int(
     os.getenv("PLAYWRIGHT_TIMEOUT_MS", "15000")
 )
 
-DATABASE_URL = os.getenv("DATABASE_URL", "")
+# Local-first: defaults to a SQLite file in the per-user app-data directory.
+# A full DATABASE_URL (e.g. Postgres) may still be supplied to override it.
+DATABASE_URL = os.getenv("DATABASE_URL") or default_database_url()
 
-REDIS_URL = os.getenv("REDIS_URL", "")
+# Local HTTP server. Binds to loopback only - never exposed to the LAN.
+HOST = os.getenv("HOST", "127.0.0.1")
+PREFERRED_PORT = int(os.getenv("PREFERRED_PORT", "8765"))
 
-RQ_QUEUE_NAME = os.getenv("RQ_QUEUE_NAME", "crawl")
+MAX_CRAWL_PAGES = int(os.getenv("MAX_CRAWL_PAGES", "20"))
 
-JOB_RETRY_MAX = int(os.getenv("JOB_RETRY_MAX", "2"))
-
-JOB_RETRY_INTERVALS_SECONDS = [
-    int(x)
-    for x in os.getenv("JOB_RETRY_INTERVALS_SECONDS", "10,60").split(",")
-    if x.strip()
-]
-
-PER_DOMAIN_RATE_LIMIT_SECONDS = float(
-    os.getenv("PER_DOMAIN_RATE_LIMIT_SECONDS", "2")
-)
-
-PER_DOMAIN_RATE_LIMIT_MAX_WAIT_SECONDS = float(
-    os.getenv("PER_DOMAIN_RATE_LIMIT_MAX_WAIT_SECONDS", "30")
-)
-
-MAX_BATCH_WEBSITES = int(os.getenv("MAX_BATCH_WEBSITES", "100"))
-
+# The frontend is served from the same origin as the API in production, so
+# CORS is normally unnecessary. These origins stay allow-listed for running
+# the Next.js dev server against a separately launched backend.
 DEFAULT_FRONTEND_ORIGINS = [
     "http://localhost:3000",
-    # Tauri's WebView2 origin for the packaged desktop app on Windows.
-    "https://tauri.localhost",
-    "http://tauri.localhost",
+    "http://127.0.0.1:3000",
 ]
 
 _frontend_origin_env = os.getenv("FRONTEND_ORIGIN")
