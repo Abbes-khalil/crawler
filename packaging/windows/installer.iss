@@ -48,7 +48,7 @@ Name: "{userdesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopico
 ; uninstalldeletevalue removes it on uninstall.
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; \
   ValueType: string; ValueName: "{#AppName}"; ValueData: """{app}\{#AppExe}"""; \
-  Flags: uninstalldeletevalue; Tasks: autostart
+  Flags: uninsdeletevalue; Tasks: autostart
 
 [Run]
 ; Launch at the end of setup (checkbox, ticked by default on non-silent installs).
