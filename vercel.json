@@ -5,9 +5,6 @@
   "functions": {
     "api/index.py": { "maxDuration": 60 }
   },
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" }
-  ],
   "redirects": [
     { "source": "/", "destination": "/now", "permanent": false }
   ]
