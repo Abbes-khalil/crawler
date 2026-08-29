@@ -108,8 +108,8 @@ if IS_MACOS:
         icon=None,
         bundle_identifier="dev.asbizdev.webintelligence",
         info_plist={
-            "CFBundleShortVersionString": "0.1.0",
-            "CFBundleVersion": "0.1.0",
+            "CFBundleShortVersionString": "0.1.2",
+            "CFBundleVersion": "0.1.2",
             "LSMinimumSystemVersion": "11.0",
             "NSHighResolutionCapable": True,
             # Background server + browser hand-off; no dock icon needed.

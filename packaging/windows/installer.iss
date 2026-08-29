@@ -1,9 +1,9 @@
 ; Inno Setup script for AS Biz Dev Web Intelligence (per-user, no admin).
-; Compile:  iscc /DAppVersion=0.1.0 packaging\windows\installer.iss
+; Compile:  iscc /DAppVersion=0.1.2 packaging\windows\installer.iss
 ; Expects the PyInstaller onefile at: dist\AS Biz Dev Web Intelligence.exe
 
 #ifndef AppVersion
-  #define AppVersion "0.1.0"
+  #define AppVersion "0.1.2"
 #endif
 
 #define AppName "AS Biz Dev Web Intelligence"
