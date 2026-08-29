@@ -36,6 +36,27 @@ from app.config import HOST, PREFERRED_PORT  # noqa: E402
 from app.paths import lock_path, log_dir  # noqa: E402
 
 
+def _ensure_std_streams() -> None:
+    """A windowed PyInstaller build (``console=False``) leaves
+    ``sys.stdout`` / ``sys.stderr`` set to ``None``. uvicorn's logging config
+    calls ``sys.stdout.isatty()`` (crashing with "Unable to configure
+    formatter 'default'") and every ``print()`` here would raise too, so
+    point the missing streams at the log file, falling back to os.devnull.
+    """
+    if sys.stdout is not None and sys.stderr is not None:
+        return
+    try:
+        stream = open(  # noqa: SIM115 - lives for the process lifetime
+            log_dir() / "app.log", "a", encoding="utf-8", buffering=1
+        )
+    except OSError:
+        stream = open(os.devnull, "w", encoding="utf-8")  # noqa: SIM115
+    if sys.stdout is None:
+        sys.stdout = stream
+    if sys.stderr is None:
+        sys.stderr = stream
+
+
 def _configure_logging() -> None:
     handlers: list[logging.Handler] = [logging.StreamHandler()]
     try:
@@ -126,6 +147,7 @@ def _open_browser(port: int) -> None:
 
 
 def main() -> int:
+    _ensure_std_streams()
     _configure_logging()
 
     existing = _running_instance_port()
@@ -140,7 +162,11 @@ def main() -> int:
 
     port = _pick_port()
 
-    config = uvicorn.Config(app, host=HOST, port=port, log_level="info")
+    # use_colors=False: never probe sys.stdout.isatty() (None in a windowed
+    # bundle); the streams above are plain files, not a terminal, anyway.
+    config = uvicorn.Config(
+        app, host=HOST, port=port, log_level="info", use_colors=False
+    )
     server = uvicorn.Server(config)
     # We install our own signal handling below.
     server.install_signal_handlers = lambda: None

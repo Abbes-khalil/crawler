@@ -200,10 +200,24 @@ pyinstaller packaging/launcher.spec --noconfirm
 - Windows: `dist\AS Biz Dev Web Intelligence.exe` (onefile); wrap with
   `packaging\windows\installer.iss` (Inno Setup, per-user, no admin).
 - macOS: `dist/AS Biz Dev Web Intelligence.app`; `packaging/macos/build_app.sh`
-  builds a `.dmg` and, with `CODESIGN_IDENTITY` / `NOTARY_PROFILE` set,
-  signs and notarizes it.
+  builds a `.dmg`. With `CODESIGN_IDENTITY` / `NOTARY_PROFILE` set it signs and
+  notarizes; otherwise it ad-hoc signs the bundle (no paid Apple account).
 - CI: `.github/workflows/build.yml` builds both on `workflow_dispatch` and
   on `v*` tags.
+
+### Opening on macOS (unsigned build)
+
+Without an Apple Developer ID ($99/yr) the build is not notarized, so
+Gatekeeper shows *"can't be opened because Apple cannot check it for
+malicious software."* The app is safe to run; use either workaround:
+
+- **Right-click → Open** on the `.app`, then confirm once in the dialog.
+  macOS remembers the choice for that copy.
+- Or strip the quarantine flag from a terminal:
+
+  ```bash
+  xattr -dr com.apple.quarantine "/Applications/AS Biz Dev Web Intelligence.app"
+  ```
 
 ## Tests
 

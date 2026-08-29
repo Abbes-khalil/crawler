@@ -24,9 +24,16 @@ fi
 test -d "$APP_PATH"
 
 if [[ -n "${CODESIGN_IDENTITY:-}" ]]; then
-  echo "Signing $APP_PATH"
+  echo "Signing $APP_PATH with $CODESIGN_IDENTITY"
   codesign --deep --force --options runtime --timestamp \
     --sign "$CODESIGN_IDENTITY" "$APP_PATH"
+else
+  # No paid Developer ID available: ad-hoc sign so the bundle carries a valid
+  # (self-referential) signature. This does not remove the "unidentified
+  # developer" prompt, but it prevents the harsher "app is damaged and can't
+  # be opened" error that unsigned PyInstaller bundles hit on Apple Silicon.
+  echo "Ad-hoc signing $APP_PATH (no CODESIGN_IDENTITY set)"
+  codesign --deep --force --sign - "$APP_PATH"
 fi
 
 # Always produce a zip of the .app - hdiutil on CI runners is flaky
