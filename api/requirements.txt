@@ -1,0 +1,14 @@
+# Runtime-only dependencies for the Vercel function. Deliberately excludes
+# playwright (never imported when PLAYWRIGHT_ENABLED=false), uvicorn (Vercel
+# provides the ASGI server) and the test tooling - keeps the bundle small.
+fastapi==0.141.1
+pydantic==2.13.4
+httpx==0.28.1
+beautifulsoup4==4.15.0
+lxml==6.1.2
+lxml_html_clean==0.4.5
+trafilatura==2.2.0
+python-dotenv==1.2.3
+phonenumbers==9.0.37
+sqlalchemy==2.0.36
+platformdirs==4.3.6

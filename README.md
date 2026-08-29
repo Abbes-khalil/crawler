@@ -125,6 +125,8 @@ to `.env` to override.
 | `SITEMAP_MAX_URLS` | `200` | Cap on URLs from sitemap discovery. |
 | `PLAYWRIGHT_ENABLED` | `true` (source) / `false` (packaged) | Allow the Playwright fallback. |
 | `FRONTEND_ORIGIN` | `localhost:3000`, `127.0.0.1:3000` | CORS allow-list for the dev server only. |
+| `ACCESS_TOKEN` | _unset_ | Hosted deploy only: if set, `POST /api/crawl-now` requires `?k=<token>` or an `x-access-key` header. |
+| `RATE_LIMIT_PER_HOUR` | `15` | Hosted deploy only: per-IP cap on `POST /api/crawl-now`. |
 
 ## API
 
@@ -158,6 +160,20 @@ Requests cancellation of a running job (`202`); `409` if already terminal.
 ### `GET /api/results` / `GET /api/results/{company_id}`
 List persisted crawls (canonical URL, page/observation counts, timestamp),
 and full detail (pages + observations) for one.
+
+### `POST /api/crawl-now`
+Synchronous, stateless crawl for the hosted deployment. Same request body as
+`POST /api/crawl` but `max_pages` is clamped to 8. Runs the crawl inline and
+returns in one response:
+
+```json
+{ "text": "# Web crawl: https://…\n…", "data": { /* CrawlCompanyResponse */ } }
+```
+
+`text` is a ready-to-paste Markdown block (contact details grouped by field,
+then each page's readable text). Nothing is persisted. Guarded by
+`ACCESS_TOKEN` (if set) and a per-IP `RATE_LIMIT_PER_HOUR` (`429` when
+exceeded). `403` on a bad/missing token.
 
 ## Status codes
 
@@ -218,6 +234,39 @@ malicious software."* The app is safe to run; use either workaround:
   ```bash
   xattr -dr com.apple.quarantine "/Applications/AS Biz Dev Web Intelligence.app"
   ```
+
+## Hosted version (Vercel)
+
+A stateless, single-page version for people who just need a link — enter a
+company site, get a text block to paste into an LLM / ChatGPT agent. No
+database, no login screen.
+
+- **Page:** `/now` (the root `/` redirects there). The desktop app and the
+  job-based `/api/crawl` flow are unchanged and unused by this page.
+- **API:** `POST /api/crawl-now` only (see above).
+- **Entrypoint:** `api/index.py` exposes the ASGI app; `vercel.json` routes
+  `/api/*` to it and serves the static `web/out` for everything else.
+  `api/requirements.txt` is the slim runtime dependency set (no Playwright).
+
+Deploy:
+
+```bash
+vercel                      # preview
+vercel --prod               # production
+```
+
+Set these environment variables in the Vercel project:
+
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | `sqlite:////tmp/crawl.db` — throwaway; `crawl-now` never writes to it, and startup tolerates it failing |
+| `PLAYWRIGHT_ENABLED` | `false` |
+| `ACCESS_TOKEN` | a random string; the shareable link becomes `https://<app>.vercel.app/?k=<token>` |
+| `RATE_LIMIT_PER_HOUR` | `15` (or taste) |
+
+Limits: the function is capped at 60 s, so the page offers 3 / 5 / 8 pages
+and the server clamps to 8. The per-IP rate limit is in-memory and resets on
+cold start — it only blunts bursts. Keep the link private.
 
 ## Tests
 

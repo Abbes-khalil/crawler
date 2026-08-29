@@ -1,0 +1,17 @@
+# The function bundle needs only the Python app + api/. Everything below is
+# either built by Vercel (web/) or irrelevant at runtime.
+.venv/
+.venv-win/
+.macos-build*/
+dist/
+dist-ci/
+build/
+tests/
+packaging/
+launcher/
+web/node_modules/
+web/.next/
+**/__pycache__/
+*.db
+*.db-shm
+*.db-wal

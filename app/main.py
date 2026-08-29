@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -8,18 +9,28 @@ from starlette.responses import FileResponse, Response
 from starlette.staticfiles import StaticFiles
 
 from app.api.crawl import router as crawl_router
+from app.api.crawl_now import router as crawl_now_router
 from app.api.health import router as health_router
 from app.api.jobs import router as jobs_router
 from app.api.results import router as results_router
 from app.config import FRONTEND_ORIGINS
 from app.jobs.manager import manager
 from app.paths import frontend_dir
-from app.storage.db import create_all_tables
+from app.storage.db import create_all_tables, is_persistence_enabled
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    create_all_tables()
+    if is_persistence_enabled():
+        try:
+            create_all_tables()
+        except Exception:
+            # A bad or unwritable DATABASE_URL must not brick startup:
+            # persistence is best-effort (see persist_crawl_result) and the
+            # stateless hosted deployment does not rely on it.
+            logger.exception("Database init failed; continuing without persistence")
     yield
     await manager.shutdown()
 
@@ -39,6 +50,7 @@ app.add_middleware(
 
 app.include_router(health_router)
 app.include_router(crawl_router)
+app.include_router(crawl_now_router)
 app.include_router(jobs_router)
 app.include_router(results_router)
 
